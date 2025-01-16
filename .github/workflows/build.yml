@@ -1,0 +1,54 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  schedule:
+    - cron: '0 9 * * 3'
+  workflow_dispatch:
+
+jobs:
+  run-tests:
+    name: run-tests-on-${{matrix.channel}}
+    strategy:
+      matrix:
+        name:
+          - rust-stable
+          - rust-nightly
+        include:
+          - name: rust-stable
+            channel: stable
+          - name: rust-nightly
+            channel: nightly
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout-${{matrix.channel}}
+        uses: actions/checkout@v3
+      - name: setup-toolchain-${{matrix.channel}}
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{matrix.channel}}
+          override: true
+          components: rustfmt
+      - name: cargo-build-${{matrix.channel}}
+        run: cargo build
+      - name: cargo-check-${{matrix.channel}}
+        run: cargo check
+      - name: cargo-check-formatting-${{matrix.channel}}
+        run: cargo fmt --check
+      - name: cargo-test-${{matrix.channel}}
+        run: cargo test --all-features
+      - name: cargo-test-doc-${{matrix.channel}}
+        run: cargo test --all-features --doc
+      - name: cargo-test-examples-${{matrix.channel}}
+        run: cargo test --all-features --examples
