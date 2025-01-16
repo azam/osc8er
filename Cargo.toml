@@ -1,0 +1,17 @@
+[package]
+name = "osc8er"
+version = "0.1.0"
+edition = "2021"
+authors = [ "Azamshul Azizy <azamshul@gmail.com>" ]
+license = "MIT"
+repository = "https://github.com/azam/osc8er"
+description = "Convert file or url to be clickable on supported terminal emulators by tagging it using OSC 8"
+categories = ["command-line-interface", "command-line-utilities"]
+keywords = [ "terminal", "cli", "ansi" ]
+
+
+[[bin]]
+name = "osc8er"
+
+[dependencies]
+getopts = "^0.2"
