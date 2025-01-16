@@ -1,21 +1,58 @@
-fn osc8_file(value: String, writer: &mut impl std::io::Write) -> std::io::Result<()> {
-    let mut path = String::from("file://");
-    path.push_str(&value);
-    let path = path
-        .replace("&", "%26")
-        .replace("#", "%23")
-        .replace("?", "%3F")
-        .replace("=", "%3D");
-    osc8(path, value, writer)
-}
-
-fn osc8(url: String, title: String, writer: &mut impl std::io::Write) -> std::io::Result<()> {
+fn osc8(
+    input_type: &InputType,
+    value: String,
+    writer: &mut impl std::io::Write,
+) -> std::io::Result<()> {
+    let (url, title) = match input_type {
+        InputType::File => {
+            let mut path = String::from("file://");
+            path.push_str(&value);
+            (
+                path.replace("&", "%26")
+                    .replace("#", "%23")
+                    .replace("?", "%3F")
+                    .replace("=", "%3D"),
+                value.clone(),
+            )
+        }
+        InputType::Url => (value.clone(), value.clone()),
+    };
     writer.write("\x1b]8;;".as_bytes())?;
     writer.write(url.as_bytes())?;
     writer.write("\x1b\\".as_bytes())?;
     writer.write(title.as_bytes())?;
     writer.write("\x1b]8;;\x1b".as_bytes())?;
     Ok(())
+}
+
+enum InputSource {
+    StdIn,
+    Args,
+}
+
+impl From<&getopts::Matches> for InputSource {
+    fn from(matches: &getopts::Matches) -> Self {
+        if matches.opt_present("a") && !matches.opt_present("p") {
+            InputSource::Args
+        } else {
+            InputSource::StdIn
+        }
+    }
+}
+
+enum InputType {
+    File,
+    Url,
+}
+
+impl From<&getopts::Matches> for InputType {
+    fn from(matches: &getopts::Matches) -> Self {
+        if matches.opt_present("u") && !matches.opt_present("f") {
+            InputType::Url
+        } else {
+            InputType::File
+        }
+    }
 }
 
 fn main() -> std::process::ExitCode {
@@ -47,19 +84,13 @@ fn main() -> std::process::ExitCode {
         print!("{}", opts.usage(&brief));
         return std::process::ExitCode::SUCCESS;
     }
-    if matches.opt_present("a") && !matches.opt_present("p") {
-        for buf in matches.free.iter() {
-            if let Err(err) = osc8_file(buf.clone(), &mut std::io::stdout()) {
-                eprintln!("Error: {}", err);
-                return std::process::ExitCode::FAILURE;
-            }
-        }
-    } else {
-        loop {
+    let input_type = InputType::from(&matches);
+    match InputSource::from(&matches) {
+        InputSource::StdIn => loop {
             let mut buf = String::new();
             if let Ok(len) = std::io::stdin().read_line(&mut buf) {
                 if len > 0 {
-                    if let Err(err) = osc8_file(buf, &mut std::io::stdout()) {
+                    if let Err(err) = osc8(&input_type, buf, &mut std::io::stdout()) {
                         eprintln!("Error: {}", err);
                         return std::process::ExitCode::FAILURE;
                     }
@@ -68,6 +99,18 @@ fn main() -> std::process::ExitCode {
                 }
             } else {
                 return std::process::ExitCode::FAILURE;
+            }
+        },
+        InputSource::Args => {
+            for buf in matches.free.iter() {
+                if let Err(err) = osc8(&input_type, buf.clone(), &mut std::io::stdout()) {
+                    eprintln!("Error: {}", err);
+                    return std::process::ExitCode::FAILURE;
+                }
+                if let Err(err) = std::io::Write::write(&mut std::io::stdout(), "\n".as_bytes()) {
+                    eprintln!("Error: {}", err);
+                    return std::process::ExitCode::FAILURE;
+                }
             }
         }
     }
