@@ -48,7 +48,8 @@ jobs:
         run: cargo fmt --check
       - name: cargo-test-${{matrix.channel}}
         run: cargo test --all-features
-      - name: cargo-test-doc-${{matrix.channel}}
-        run: cargo test --all-features --doc
+      # Only for library crates
+      # - name: cargo-test-doc-${{matrix.channel}}
+      #   run: cargo test --all-features --doc
       - name: cargo-test-examples-${{matrix.channel}}
         run: cargo test --all-features --examples
