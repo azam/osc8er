@@ -2,6 +2,7 @@ name: publish
 
 permissions:
   contents: write
+  packages: write
 
 on:
   release:
@@ -10,12 +11,59 @@ on:
   workflow_dispatch:
 
 jobs:
+  upload-asset:
+    name: upload-asset-for-${{matrix.channel}}-${{matrix.target}}
+    strategy:
+      matrix:
+        include:
+          - channel: stable
+            target: x86_64-unknown-linux-gnu
+            runner: ubuntu-latest
+          - channel: stable
+            target: aarch64-unknown-linux-gnu
+            runner: ubuntu-latest
+          - channel: stable
+            target: x86_64-unknown-linux-musl
+            runner: ubuntu-latest
+          - channel: stable
+            target: aarch64-unknown-linux-musl
+            runner: ubuntu-latest
+          - channel: stable
+            target: x86_64-pc-windows-msvc
+            runner: windows-latest
+          - channel: stable
+            target: x86_64-pc-windows-gnu
+            runner: windows-latest
+          - channel: stable
+            target: x86_64-apple-darwin
+            runner: macos-latest
+          - channel: stable
+            target: aarch64-apple-darwin
+            runner: macos-latest
+          # - channel: stable
+          #   target: x86_64-unknown-freebsd
+          #   runner: ubuntu-latest
+          # - channel: stable
+          #   target: aarch64-unknown-freebsd
+          #   runner: ubuntu-latest
+    runs-on: ${{matrix.runner}}
+    steps:
+      - name: checkout-${{matrix.channel}}-${{matrix.target}}
+        uses: actions/checkout@v4
+      - name: setup-toolchain-${{matrix.channel}}-${{matrix.target}}
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{matrix.channel}}
+      - name: upload-rust-binary-${{matrix.channel}}-${{matrix.target}}
+        uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: osc8er
+          target: ${{matrix.target}}
+          token: ${{secrets.GITHUB_TOKEN}}
   publish:
+    needs: upload-asset
     name: publish
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
     steps:
       - name: checkout
         uses: actions/checkout@v4
