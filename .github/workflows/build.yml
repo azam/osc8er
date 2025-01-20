@@ -46,12 +46,12 @@ jobs:
           - channel: stable
             target: aarch64-apple-darwin
             runner: macos-latest
-          # - channel: stable
-          #   target: x86_64-unknown-freebsd
-          #   runner: ubuntu-latest
-          # - channel: stable
-          #   target: aarch64-unknown-freebsd
-          #   runner: ubuntu-latest
+          - channel: stable
+            target: x86_64-unknown-freebsd
+            runner: ubuntu-latest
+          - channel: stable
+            target: aarch64-unknown-freebsd
+            runner: ubuntu-latest
     runs-on: ${{matrix.runner}}
     steps:
       - name: checkout-${{matrix.channel}}-${{matrix.target}}
@@ -60,6 +60,7 @@ jobs:
         uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: ${{matrix.channel}}
+          targets: ${{matrix.target}}
           components: rustfmt
       - name: setup-cross-toolchain-${{matrix.channel}}-${{matrix.target}}
         uses: taiki-e/setup-cross-toolchain-action@v1
