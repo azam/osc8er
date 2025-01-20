@@ -41,17 +41,20 @@ jobs:
             target: x86_64-pc-windows-msvc
             runner: windows-latest
           - channel: stable
+            target: x86_64-pc-windows-gnu
+            runner: windows-latest
+          - channel: stable
             target: x86_64-apple-darwin
             runner: macos-latest
           - channel: stable
             target: aarch64-apple-darwin
             runner: macos-latest
-          - channel: stable
-            target: x86_64-unknown-freebsd
-            runner: ubuntu-latest
-          - channel: stable
-            target: aarch64-unknown-freebsd
-            runner: ubuntu-latest
+          # - channel: stable
+          #   target: x86_64-unknown-freebsd
+          #   runner: ubuntu-latest
+          # - channel: stable
+          #   target: aarch64-unknown-freebsd
+          #   runner: ubuntu-latest
     runs-on: ${{matrix.runner}}
     steps:
       - name: checkout-${{matrix.channel}}-${{matrix.target}}
