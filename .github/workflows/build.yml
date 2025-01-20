@@ -6,7 +6,7 @@ on:
       - main
       - develop
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
   pull_request:
     types:
       - opened
@@ -18,38 +18,67 @@ on:
 
 jobs:
   run-tests:
-    name: run-tests-on-${{matrix.channel}}
+    name: run-tests-on-${{matrix.channel}}-${{matrix.target}}
     strategy:
       matrix:
-        name:
-          - rust-stable
-          - rust-nightly
         include:
-          - name: rust-stable
-            channel: stable
-          - name: rust-nightly
-            channel: nightly
-    runs-on: ubuntu-latest
+          - channel: nightly
+            target: x86_64-unknown-linux-gnu
+            runner: ubuntu-latest
+          - channel: stable
+            target: x86_64-unknown-linux-gnu
+            runner: ubuntu-latest
+          - channel: stable
+            target: aarch64-unknown-linux-gnu
+            runner: ubuntu-latest
+          - channel: stable
+            target: x86_64-unknown-linux-musl
+            runner: ubuntu-latest
+          - channel: stable
+            target: aarch64-unknown-linux-musl
+            runner: ubuntu-latest
+          - channel: stable
+            target: x86_64-pc-windows-msvc
+            runner: windows-latest
+          - channel: stable
+            target: x86_64-pc-windows-gnu
+            runner: windows-latest
+          - channel: stable
+            target: x86_64-apple-darwin
+            runner: macos-latest
+          - channel: stable
+            target: aarch64-apple-darwin
+            runner: macos-latest
+          # - channel: stable
+          #   target: x86_64-unknown-freebsd
+          #   runner: ubuntu-latest
+          # - channel: stable
+          #   target: aarch64-unknown-freebsd
+          #   runner: ubuntu-latest
+    runs-on: ${{matrix.runner}}
     steps:
-      - name: checkout-${{matrix.channel}}
-        uses: actions/checkout@v3
-      - name: setup-toolchain-${{matrix.channel}}
-        uses: actions-rs/toolchain@v1
+      - name: checkout-${{matrix.channel}}-${{matrix.target}}
+        uses: actions/checkout@v4
+      - name: setup-toolchain-${{matrix.channel}}-${{matrix.target}}
+        uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{matrix.channel}}
-          override: true
+          # targets: ${{matrix.target}}
           components: rustfmt
-      - name: cargo-build-${{matrix.channel}}
+      - name: setup-cross-toolchain-${{matrix.channel}}-${{matrix.target}}
+        uses: taiki-e/setup-cross-toolchain-action@v1
+        with:
+          target: ${{matrix.target}}
+      - name: cargo-build-${{matrix.channel}}-${{matrix.target}}
         run: cargo build
-      - name: cargo-check-${{matrix.channel}}
+      - name: cargo-check-${{matrix.channel}}-${{matrix.target}}
         run: cargo check
-      - name: cargo-check-formatting-${{matrix.channel}}
+      - name: cargo-check-formatting-${{matrix.channel}}-${{matrix.target}}
         run: cargo fmt --check
-      - name: cargo-test-${{matrix.channel}}
+      - name: cargo-test-${{matrix.channel}}-${{matrix.target}}
         run: cargo test --all-features
       # Only for library crates
       # - name: cargo-test-doc-${{matrix.channel}}
       #   run: cargo test --all-features --doc
-      - name: cargo-test-examples-${{matrix.channel}}
+      - name: cargo-test-examples-${{matrix.channel}}-${{matrix.target}}
         run: cargo test --all-features --examples
