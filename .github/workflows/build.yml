@@ -60,7 +60,7 @@ jobs:
         uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: ${{matrix.channel}}
-          targets: ${{matrix.target}}
+          # targets: ${{matrix.target}}
           components: rustfmt
       - name: setup-cross-toolchain-${{matrix.channel}}-${{matrix.target}}
         uses: taiki-e/setup-cross-toolchain-action@v1
