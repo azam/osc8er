@@ -24,3 +24,20 @@ Via arguments
 ```sh
 osc8er -a README.md
 ```
+
+Full options
+
+```
+Usage: osc8er [OPTIONS] {ARGS...}
+
+Options:
+    -p, --pipe          input from stdin/pipe (default, mutually exclusive
+                        with --args)
+    -a, --args          input from argument (mutually exclusive with --pipe)
+    -f, --file          treat input as file link (default, mutually exclusive
+                        with --url)
+    -u, --url           treat input as URL (mutually exclusive with --file)
+    -r, --resolve       resolve relative file path from current working
+                        directory
+    -h, --help          print this help menu
+```

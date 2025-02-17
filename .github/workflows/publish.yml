@@ -60,6 +60,7 @@ jobs:
           bin: osc8er
           target: ${{matrix.target}}
           token: ${{secrets.GITHUB_TOKEN}}
+          checksum: md5,sha256
   publish:
     needs: upload-asset
     name: publish
