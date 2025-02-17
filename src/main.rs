@@ -89,12 +89,11 @@ impl From<&getopts::Matches> for InputType {
 
 fn main() -> std::process::ExitCode {
     let args: Vec<String> = std::env::args().collect();
-    let program = args[0].clone();
     let mut opts = getopts::Options::new();
     opts.optflag(
         "p",
         "pipe",
-        "input from pipe (default, mutually exclusive with --args)",
+        "input from stdin/pipe (default, mutually exclusive with --args)",
     );
     opts.optflag(
         "a",
@@ -119,13 +118,16 @@ fn main() -> std::process::ExitCode {
     opts.optflag("h", "help", "print this help menu");
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => m,
-        Err(f) => {
-            eprint!("{}: {}\n", program, f);
+        Err(err) => {
+            eprintln!("{}: {}", std::env!("CARGO_BIN_NAME"), err);
             return std::process::ExitCode::FAILURE;
         }
     };
     if matches.opt_present("h") {
-        let brief = format!("Usage: {} [options]", program);
+        let brief = format!(
+            "Usage: {} [OPTIONS] {{ARGS...}}",
+            std::env!("CARGO_BIN_NAME")
+        );
         print!("{}", opts.usage(&brief));
         return std::process::ExitCode::SUCCESS;
     }
