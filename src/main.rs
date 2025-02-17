@@ -6,7 +6,7 @@ fn osc8(
 ) -> std::io::Result<()> {
     let (url, title) = match input_type {
         InputType::File => {
-            // cargo buiWe are finding and replacing characters which all falls within ASCII
+            // We are finding and replacing characters which all falls within ASCII
             // compatible region of UTF-8 encoding, so byte replacement is fine.
             let resolved_value = if resolve {
                 let path = std::path::PathBuf::from(value.clone());
