@@ -25,6 +25,11 @@ fn osc8(
                         escaped_value.push(b'2');
                         escaped_value.push(b'3');
                     }
+                    b'%' => {
+                        escaped_value.push(b'%');
+                        escaped_value.push(b'2');
+                        escaped_value.push(b'5');
+                    }
                     b'&' => {
                         escaped_value.push(b'%');
                         escaped_value.push(b'2');

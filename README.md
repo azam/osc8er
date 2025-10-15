@@ -8,8 +8,7 @@ CLI tool to convert file path or URL to terminal hyperlinks on terminal emulator
 
 ## [License](LICENSE)
 
-MIT Licence
-Copyright (c) 2025 Azamshul Azizy
+> MIT Licence Copyright (c) 2025 Azamshul Azizy
 
 ## Usage
 
