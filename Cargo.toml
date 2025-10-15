@@ -1,6 +1,6 @@
 [package]
 name = "osc8er"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 authors = [ "Azamshul Azizy <azamshul@gmail.com>" ]
 license = "MIT"
